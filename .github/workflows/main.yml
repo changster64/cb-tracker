@@ -1,0 +1,22 @@
+name: Daily CB Bot
+on:
+  schedule:
+    - cron: '10 7 * * 1-5' # 台灣時間週一至五 15:10 執行
+  workflow_dispatch: # 允許手動執行測試
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install Libs
+        run: pip install requests pandas
+      - name: Run
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: python scraper.py

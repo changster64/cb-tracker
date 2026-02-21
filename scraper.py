@@ -10,7 +10,7 @@ def send_to_tg(text):
 
 def main():
     # 請確保這是最新的 /exec 網址
-    GAS_URL = "https://script.google.com/macros/s/AKfycbzhicb96BLeL3xgSCfypjYoYWyFqAMxl_NLeu9EPGqxQNUnJijtzI2O9-MhPyJkAZkxjg/exec" 
+    GAS_URL = "https://script.google.com/macros/s/AKfycbxJ9-pl5JRNSnA_E-Q_cuoiFgjFfhATmoFc_Q_QR86O_OoRZgOtO87lBaaY5ju53O5P3Q/exec" 
     
     print("正在透過 Google 跳板抓取...")
     try:

@@ -21,7 +21,7 @@ def send_to_tg(text):
 
 def main():
     # 注意：請務必替換下方網址
-    GAS_URL = "https://script.google.com/home/projects/15nDaP8loMGuFMLZuyENf18GpRRO37sVWfE2e61xWNXdu6AaIPOtvw66r/exec" 
+    GAS_URL = "https://script.google.com/macros/s/AKfycbwxfiSTBhwSQJhHL3PUahtu6_llegyiGK3VYDnfh3BDNLoPvfPnXJCZNlq3FOLjYAFaXA/exec" 
     
     if "你的_GOOGLE" in GAS_URL:
         print("❌ 錯誤：你還沒替換 GAS_URL！請放入 Google Apps Script 的部署網址。")

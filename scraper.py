@@ -9,37 +9,35 @@ def send_to_tg(text):
     requests.post(url, data={"chat_id": chat_id, "text": text, "parse_mode": "HTML"})
 
 def main():
-    # 請確保這是最新的 /exec 網址
-    GAS_URL = "https://script.google.com/macros/s/AKfycbxJ9-pl5JRNSnA_E-Q_cuoiFgjFfhATmoFc_Q_QR86O_OoRZgOtO87lBaaY5ju53O5P3Q/exec" 
+    GAS_URL = "https://script.google.com/macros/s/AKfycbz71ujsG5i0iuikC6cMO28gkaZKu1ald480dXdTVlA09opWliGn5n9cE4gWkb1jKnHo/exec" 
     
-    print("正在透過 Google 跳板抓取...")
+    print("正在透過 Google 跳板抓取資料...")
     try:
-        res = requests.get(GAS_URL, timeout=30)
+        res = requests.get(GAS_URL, timeout=40)
+        data = res.json()
         
-        # 除錯：印出內容類型
-        print(f"回應類型: {res.headers.get('Content-Type')}")
-        
-        # 檢查是否為有效的 JSON
-        try:
-            data = res.json()
-        except Exception:
-            print("❌ Google 回傳的不是 JSON！")
-            print(f"回傳內容前 200 字: {res.text[:200]}")
+        # 修正：櫃買中心 API 回傳的是字串形式的 JSON，有時需要二次解析
+        if isinstance(data, str):
+            import json
+            data = json.loads(data)
+
+        if 'aaData' not in data:
+            print(f"❌ GAS 回傳異常內容: {data}")
             return
 
-        if 'error' in data:
-            print(f"❌ GAS 腳本報錯: {data['error']}")
-            return
-
-        # 資料處理
         df = pd.DataFrame(data['aaData'])
+        # 0:代號, 1:名稱, 2:收盤, 4:漲跌幅, 7:成交量
         df = df[[0, 1, 2, 4, 7]]
         df.columns = ['Code', 'Name', 'Price', 'Change', 'Volume']
-        df['Volume'] = df['Volume'].str.replace(',', '').astype(int)
+        
+        # 排除非數字的成交量並轉型
+        df['Volume'] = df['Volume'].str.replace(',', '')
+        df = df[df['Volume'].str.isnumeric()]
+        df['Volume'] = df['Volume'].astype(int)
         
         top5 = df.sort_values(by='Volume', ascending=False).head(5)
         
-        msg = f"📊 <b>可轉債成交量前五 (跳板版)</b>\n"
+        msg = f"📊 <b>可轉債成交量前五</b>\n"
         msg += f"📅 {data.get('reportDate', '今日')}\n"
         msg += "————————————————\n"
         for i, row in enumerate(top5.itertuples(), 1):
@@ -47,10 +45,10 @@ def main():
             msg += f"    價: <b>{row.Price}</b> ({row.Change}%) | 量: {row.Volume}\n"
         
         send_to_tg(msg)
-        print("✅ 任務完成")
+        print("✅ 成功發送至 Telegram！")
 
     except Exception as e:
-        print(f"❌ 執行出錯: {e}")
+        print(f"❌ 發生錯誤: {e}")
 
 if __name__ == "__main__":
     main()
